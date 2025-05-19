@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: 22
       - name: Install frontend deps
-        working-directory: frontend
+        working-directory: frontend/"Frontend do lab 6"
         run: |
           npm install
           npm run build
