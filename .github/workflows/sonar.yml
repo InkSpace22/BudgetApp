@@ -28,10 +28,6 @@ jobs:
       - name: Build backend
         working-directory: backend/PASiR_Marciniec_Maciej
         run: mvn clean install -DskipTests
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
       - name: Cache SonarCloud
         uses: actions/cache@v4
         with:

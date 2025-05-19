@@ -17,26 +17,6 @@ import GroupMembersPage from "../pages/GroupsPage/GroupMembersPage";
 import GroupDebtsPage from "../pages/GroupsPage/GroupDebtPage";
 import GroupsPage from "../pages/GroupsPage/GroupsPage";
 
-const GroupMembersPageWrapper = () => {
-  const { groupId } = useParams();
-  const navigate = useNavigate();
-  
-  // Tutaj możesz użyć useMemo lub useEffect do pobrania danych grupy
-  // Na przykład:
-  const group = {
-    id: Number(groupId),
-    name: "Grupa", // Tutaj powinny być faktyczne dane
-    ownerId: 1
-  };
-
-  return (
-    <GroupMembersPage 
-      group={group}
-      onBack={() => navigate('/groups')}
-    />
-  );
-};
-
 const App: React.FC = () => {
   return (
     <Router>
