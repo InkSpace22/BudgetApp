@@ -32,11 +32,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install frontend deps
-        working-directory: ./frontend
-        run: |
-          npm ci
-          npm run build
       - name: Cache SonarCloud
         uses: actions/cache@v4
         with:

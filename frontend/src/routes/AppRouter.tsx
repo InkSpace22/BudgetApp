@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,7 +16,6 @@ import BalanceBar from "../components/BalanceBar/BalanceBar";
 import GroupMembersPage from "../pages/GroupsPage/GroupMembersPage";
 import GroupDebtsPage from "../pages/GroupsPage/GroupDebtPage";
 import GroupsPage from "../pages/GroupsPage/GroupsPage";
-
 
 const GroupMembersPageWrapper = () => {
   const { groupId } = useParams();
@@ -74,7 +73,7 @@ const App: React.FC = () => {
             path="/groups/:groupId/members"
             element={
               <PrivateRoute>
-                <GroupMembersPageWrapper/>
+                <GroupMembersPage/>
               </PrivateRoute>
             }
           />
