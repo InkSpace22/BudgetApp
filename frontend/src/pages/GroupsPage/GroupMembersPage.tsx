@@ -24,8 +24,8 @@ interface Member {
 }
 
 interface Props {
-  group?: Group;  // Zmieniamy na opcjonalne
-  onBack?: () => void;  // Zmieniamy na opcjonalne
+  group: Group;
+  onBack: () => void;
 }
 
 interface Debt {
@@ -38,7 +38,6 @@ interface Debt {
   confirmedByCreditor: boolean;
 }
 
-// Zachowujemy oryginalne parametry, ale robimy je opcjonalnymi
 const GroupMembersPage: React.FC<Props> = ({ group, onBack }) => {
   const { user } = useAuth();
   const [members, setMembers] = useState<Member[]>([]);
@@ -47,16 +46,11 @@ const GroupMembersPage: React.FC<Props> = ({ group, onBack }) => {
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const { refreshBalance } = useBalance();
-  
   useEffect(() => {
-    if (group) {
-      fetchMembers();
-    }
+    fetchMembers();
   }, [group]);
 
   const fetchMembers = async () => {
-    if (!group) return;
-    
     const data = await groupsApi.getGroupMembers(group.id);
     const debtsData = await groupsApi.getDebts(group.id);
     setDebts(debtsData);
@@ -64,8 +58,6 @@ const GroupMembersPage: React.FC<Props> = ({ group, onBack }) => {
   };
 
   const handleAddMember = async () => {
-    if (!group) return;
-    
     try {
       await groupsApi.addMember(group.id, newMemberEmail);
       setNewMemberEmail("");
@@ -103,11 +95,6 @@ const GroupMembersPage: React.FC<Props> = ({ group, onBack }) => {
     refreshBalance(null);
     fetchMembers(); // odśwież dane
   };
-
-  // Renderuj komunikat ładowania, gdy nie ma grupy
-  if (!group || !onBack) {
-    return <div className={styles.container}>Ładowanie...</div>;
-  }
 
   return (
     <div className={styles.container}>

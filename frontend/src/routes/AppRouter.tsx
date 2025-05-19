@@ -1,4 +1,4 @@
-import React from "react";
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { ToastContainer } from "react-toastify";
@@ -16,6 +16,43 @@ import BalanceBar from "../components/BalanceBar/BalanceBar";
 import GroupMembersPage from "../pages/GroupsPage/GroupMembersPage";
 import GroupDebtsPage from "../pages/GroupsPage/GroupDebtPage";
 import GroupsPage from "../pages/GroupsPage/GroupsPage";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+
+
+// Przykładowa funkcja pobierająca dane grupy (dostosuj do swojego API)
+const fetchGroupById = async (groupId: string) => {
+  // Przykład pobrania z API
+  const response = await fetch(`/api/groups/${groupId}`);
+  if (!response.ok) throw new Error("Nie udało się pobrać grupy");
+  return response.json();
+};
+
+const GroupMembersPageWrapper = () => {
+  const { groupId } = useParams();
+  const navigate = useNavigate();
+  const [group, setGroup] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (groupId) {
+      fetchGroupById(groupId)
+        .then(data => setGroup(data))
+        .catch(() => setGroup(null))
+        .finally(() => setLoading(false));
+    }
+  }, [groupId]);
+
+  if (loading) return <div>Ładowanie...</div>;
+  if (!group) return <div>Nie znaleziono grupy</div>;
+
+  return (
+    <GroupMembersPage
+      group={group}
+      onBack={() => navigate(-1)}
+    />
+  );
+};
 
 const App: React.FC = () => {
   return (
@@ -53,7 +90,7 @@ const App: React.FC = () => {
             path="/groups/:groupId/members"
             element={
               <PrivateRoute>
-                <GroupMembersPage/>
+                <GroupMembersPageWrapper/>
               </PrivateRoute>
             }
           />
