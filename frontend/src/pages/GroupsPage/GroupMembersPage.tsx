@@ -9,6 +9,7 @@ import AddGroupTransaction from "./AddGroupTransaction";
 import ConfirmModal from "../../components/ConfirmModal/ConfirmModal";
 import { toast } from "react-toastify";
 import { useBalance } from "../../components/BalanceBar/useBalance";
+import { useParams, useNavigate } from "react-router-dom";
 
 interface Group {
   id: number;
@@ -23,10 +24,8 @@ interface Member {
   userEmail: string;
 }
 
-interface Props {
-  group: Group;
-  onBack: () => void;
-}
+// Modyfikujemy Props, usuwając group i onBack, ponieważ będziemy ich używać wewnętrznie
+// Możemy całkowicie usunąć interfejs Props, jeśli nie będzie potrzebny
 
 interface Debt {
   id: number;
@@ -38,19 +37,45 @@ interface Debt {
   confirmedByCreditor: boolean;
 }
 
-const GroupMembersPage: React.FC<Props> = ({ group, onBack }) => {
+const GroupMembersPage: React.FC = () => {
+  const { groupId } = useParams<{ groupId: string }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
+  const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [debts, setDebts] = useState<Debt[]>([]);
   const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const { refreshBalance } = useBalance();
+  
   useEffect(() => {
-    fetchMembers();
+    // Pobierz dane grupy na podstawie groupId
+    const fetchGroup = async () => {
+      try {
+        if (groupId) {
+          const groupData = await groupsApi.getGroups();
+          setGroup(groupData);
+        }
+      } catch (error) {
+        console.error("Błąd podczas pobierania danych grupy:", error);
+        toast.error("Nie udało się załadować grupy");
+        navigate('/groups'); // Przekieruj do listy grup w przypadku błędu
+      }
+    };
+    
+    fetchGroup();
+  }, [groupId, navigate]);
+
+  useEffect(() => {
+    if (group) {
+      fetchMembers();
+    }
   }, [group]);
 
   const fetchMembers = async () => {
+    if (!group) return;
+    
     const data = await groupsApi.getGroupMembers(group.id);
     const debtsData = await groupsApi.getDebts(group.id);
     setDebts(debtsData);
@@ -58,13 +83,15 @@ const GroupMembersPage: React.FC<Props> = ({ group, onBack }) => {
   };
 
   const handleAddMember = async () => {
+    if (!group) return;
+    
     try {
       await groupsApi.addMember(group.id, newMemberEmail);
       setNewMemberEmail("");
       fetchMembers();
     } catch (error: any) {
       console.error("Błąd dodawania członka:", error);
-      alert(error.message || "Wystąpił błąd.");
+      toast.error(error.message || "Wystąpił błąd podczas dodawania członka.");
     }
   };
 
@@ -96,9 +123,19 @@ const GroupMembersPage: React.FC<Props> = ({ group, onBack }) => {
     fetchMembers(); // odśwież dane
   };
 
+  // Funkcja obsługująca powrót
+  const handleBack = () => {
+    navigate('/groups');
+  };
+
+  // Jeśli dane grupy nie zostały jeszcze załadowane, pokaż loader lub pusty komponent
+  if (!group) {
+    return <div className={styles.container}>Ładowanie...</div>;
+  }
+
   return (
     <div className={styles.container}>
-      <button onClick={onBack} className={styles.backButton}>
+      <button onClick={handleBack} className={styles.backButton}>
         Wróć do grup
       </button>
       <h2>Członkowie grupy: {group.name}</h2>
